@@ -109,6 +109,8 @@ $app->post('/registrar', function() use($app, $db){
 	echo json_encode($result);
 });
 
+
+
 $app->post('/login', function() use($app, $db){
 
 	$json = $app->request->post('json');
@@ -135,6 +137,7 @@ $app->post('/login', function() use($app, $db){
 	
 	if (empty($data)) {
      // data esta vacio.
+		$app->response->setStatus(404);
 		$resultResponse = array(
 			'status' => 'error',
 			'code'	 => 404,
@@ -142,6 +145,7 @@ $app->post('/login', function() use($app, $db){
 		);
 	}else{
 		unset($data[0]["password"]);
+		$app->response->setStatus(200);
 		$resultResponse = array(
 			'status' => 'success',
 			'code'	 => 200,
@@ -149,6 +153,7 @@ $app->post('/login', function() use($app, $db){
 			'data' => json_encode($data)
 		);
 	}
+
 
 	$resultadoQuery->close();
 	echo json_encode($resultResponse);
