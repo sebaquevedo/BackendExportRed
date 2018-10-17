@@ -74,20 +74,19 @@ $app->post('/register', function() use($app, $db){
 
 	$existe = $db->query($queryExiste);
 
-	$dataExiste = array();
+	$data = array();
 
 	while($row = mysqli_fetch_assoc($existe)){
-    	$dataExiste[] = $row; 
+    	$data[] = $row; 
 	}
 
-	if(empty($dataExiste)) {
+	if(empty($data)) {
      // data esta vacio.
 		//deberia registrar
-		$query = "INSERT INTO autenticacion(username, password, correo, nombre, apellido, rut, telefono) VALUES (".
+		$query = "INSERT INTO autenticacion(username, password, correo, apellido, rut, telefono) VALUES (".
 			 "'{$data['email']}',".
 			 "'{$data['password']}',".
 			 "'{$data['email']}',".
-			 "'{$data['nombre']}',".
 			 "'{$data['apellido']}',".
 			 "'{$data['rut']}',".
 			 "'{$data['telefono']}'".
@@ -99,12 +98,12 @@ $app->post('/register', function() use($app, $db){
 		if($insert){
 
 			$app->response->setStatus(200);
-			unset($data["password"]);
+			unset($data[0]["password"]);
 			$result = array(
-				'status' => 'success',
+				'status' => 'error',
 				'code'	 => 200,
 				'message' => 'Usuario registrado correctamente',
-				'data' => $data
+				'data' => json_encode($data);
 				);
 		}
 		else{
@@ -113,25 +112,16 @@ $app->post('/register', function() use($app, $db){
 			$result = array(
 				'status' => 'error',
 				'code'	 => 404,
-				'message' => 'Se produjo un problema para registrar al usuario'
+				'message' => 'Usuario ya esta registrado'
 				);
 			}
 		}
-		else
-		{
-			$app->response->setStatus(404);
-			$result = array(
-				'status' => 'error',
-				'code'	 => 404,
-				'message' => 'Usuario ya esta registrado'
-				);
-		}
-		
 		
 	$existe->close();
 	echo json_encode($result);
 	$db->close();
 });
+
 
 
 $app->post('/login', function() use($app, $db){
@@ -167,13 +157,13 @@ $app->post('/login', function() use($app, $db){
 			'message' => 'Usuario o contraseña incorrectos'
 		);
 	}else{
-		unset($data['password']);
+		unset($data[0]["password"]);
 		$app->response->setStatus(200);
 		$resultResponse = array(
 			'status' => 'success',
 			'code'	 => 200,
 			'message' => 'Usuario correctamente logeado',
-			'data' => $data
+			'data' => json_encode($data)
 		);
 	}
 
