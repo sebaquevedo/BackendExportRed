@@ -2,6 +2,7 @@
 
 require_once 'vendor/autoload.php';
 require_once 'src/controllers/passwordByDefault.php';
+require_once 'src/mailer/mailer.php';
 include 'src/controllers/autenticacionController.php';
 use Doctrine\ORM\EntityManager;
 
@@ -71,8 +72,7 @@ $app->post('/register', function() use($app, $db){
 	}
 
 	$queryExiste = "SELECT * FROM autenticacion".
-	" where username = "."'{$data['email']}'".
-	" and password = "."'{$data['password']}'";
+	" where username = "."'{$data['email']}'";
 
 	$existe = $db->query($queryExiste);
 
@@ -92,51 +92,45 @@ $app->post('/register', function() use($app, $db){
 			$pass = $passDefault->getPasswordByDefault();
 			$data['password'] = $pass;
 
+		}
+
+		$query = "INSERT INTO autenticacion(username, password, correo, nombre, apellido, rut, telefono) VALUES (".
+			 "'{$data['email']}',".
+			 "'{$data['password']}',".
+			 "'{$data['email']}',".
+			 "'{$data['nombre']}',".
+			 "'{$data['apellido']}',".
+			 "'{$data['rut']}',".
+			 "'{$data['telefono']}'".
+			 ");";
+
+		$insert = $db->query($query);
+
+		
+		if($insert){
+
 			$app->response->setStatus(200);
+			unset($data["password"]);
 			$result = array(
 				'status' => 'success',
 				'code'	 => 200,
 				'message' => 'Usuario registrado correctamente',
-				'data' => $data['password']
+				'data' => $data
 				);
-			$existe->close();
-			$db->close();
-			echo json_encode($result);
+			//enviar mail al correo registrado
+			$mailSender = mailer::singleton();
+			$envio = $mailSender->sendRegisterMail($data['email']);
+			
 		}
-
-		// $query = "INSERT INTO autenticacion(username, password, correo, nombre, apellido, rut, telefono) VALUES (".
-		// 	 "'{$data['email']}',".
-		// 	 "'{$data['password']}',".
-		// 	 "'{$data['email']}',".
-		// 	 "'{$data['nombre']}',".
-		// 	 "'{$data['apellido']}',".
-		// 	 "'{$data['rut']}',".
-		// 	 "'{$data['telefono']}'".
-		// 	 ");";
-
-		// $insert = $db->query($query);
-
-		
-		// if($insert){
-
-		// 	$app->response->setStatus(200);
-		// 	unset($data["password"]);
-		// 	$result = array(
-		// 		'status' => 'success',
-		// 		'code'	 => 200,
-		// 		'message' => 'Usuario registrado correctamente',
-		// 		'data' => $data
-		// 		);
-		// }
-		// else{
-		// 	//aca debe devolver error porque el usuario ya esta registrado
-		// 	$app->response->setStatus(404);
-		// 	$result = array(
-		// 		'status' => 'error',
-		// 		'code'	 => 404,
-		// 		'message' => 'Se produjo un problema para registrar al usuario'
-		// 		);
-		// 	}
+		else{
+			//aca debe devolver error porque el usuario ya esta registrado
+			$app->response->setStatus(404);
+			$result = array(
+				'status' => 'error',
+				'code'	 => 404,
+				'message' => 'Se produjo un problema para registrar al usuario'
+				);
+			}
 		}
 		else
 		{

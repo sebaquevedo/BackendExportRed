@@ -7,7 +7,7 @@
 
 	 private function __construct()
     	{
-        	$this->pass = "666666";
+        	$this->pass = "123124";
         	
     	}
 
