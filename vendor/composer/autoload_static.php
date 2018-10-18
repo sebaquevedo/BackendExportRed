@@ -20,6 +20,7 @@ class ComposerStaticInitefd3391e1bb5b2381671793938bf12c7
         'P' => 
         array (
             'Psr\\Log\\' => 8,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'D' => 
         array (
@@ -46,6 +47,10 @@ class ComposerStaticInitefd3391e1bb5b2381671793938bf12c7
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'Doctrine\\Common\\Inflector\\' => 
         array (

@@ -1,8 +1,10 @@
 <?php 
 
 require_once 'vendor/autoload.php';
+require_once 'src/controllers/passwordByDefault.php';
 include 'src/controllers/autenticacionController.php';
 use Doctrine\ORM\EntityManager;
+
 
 $app = new \Slim\Slim();
 
@@ -83,39 +85,58 @@ $app->post('/register', function() use($app, $db){
 	if(empty($dataExiste)) {
      // data esta vacio.
 		//deberia registrar
-		$query = "INSERT INTO autenticacion(username, password, correo, nombre, apellido, rut, telefono) VALUES (".
-			 "'{$data['email']}',".
-			 "'{$data['password']}',".
-			 "'{$data['email']}',".
-			 "'{$data['nombre']}',".
-			 "'{$data['apellido']}',".
-			 "'{$data['rut']}',".
-			 "'{$data['telefono']}'".
-			 ");";
-
-		$insert = $db->query($query);
-
 		
-		if($insert){
+
+		if(empty($data['password'])){
+			$passDefault = passwordByDefault::singleton();
+			$pass = $passDefault->getPasswordByDefault();
+			$data['password'] = $pass;
 
 			$app->response->setStatus(200);
-			unset($data["password"]);
 			$result = array(
 				'status' => 'success',
 				'code'	 => 200,
 				'message' => 'Usuario registrado correctamente',
-				'data' => $data
+				'data' => $data['password']
 				);
+			$existe->close();
+			$db->close();
+			echo json_encode($result);
 		}
-		else{
-			//aca debe devolver error porque el usuario ya esta registrado
-			$app->response->setStatus(404);
-			$result = array(
-				'status' => 'error',
-				'code'	 => 404,
-				'message' => 'Se produjo un problema para registrar al usuario'
-				);
-			}
+
+		// $query = "INSERT INTO autenticacion(username, password, correo, nombre, apellido, rut, telefono) VALUES (".
+		// 	 "'{$data['email']}',".
+		// 	 "'{$data['password']}',".
+		// 	 "'{$data['email']}',".
+		// 	 "'{$data['nombre']}',".
+		// 	 "'{$data['apellido']}',".
+		// 	 "'{$data['rut']}',".
+		// 	 "'{$data['telefono']}'".
+		// 	 ");";
+
+		// $insert = $db->query($query);
+
+		
+		// if($insert){
+
+		// 	$app->response->setStatus(200);
+		// 	unset($data["password"]);
+		// 	$result = array(
+		// 		'status' => 'success',
+		// 		'code'	 => 200,
+		// 		'message' => 'Usuario registrado correctamente',
+		// 		'data' => $data
+		// 		);
+		// }
+		// else{
+		// 	//aca debe devolver error porque el usuario ya esta registrado
+		// 	$app->response->setStatus(404);
+		// 	$result = array(
+		// 		'status' => 'error',
+		// 		'code'	 => 404,
+		// 		'message' => 'Se produjo un problema para registrar al usuario'
+		// 		);
+		// 	}
 		}
 		else
 		{
@@ -128,9 +149,9 @@ $app->post('/register', function() use($app, $db){
 		}
 		
 		
-	$existe->close();
+	//$existe->close();
 	echo json_encode($result);
-	$db->close();
+	//$db->close();
 });
 
 
