@@ -198,5 +198,80 @@ $app->post('/login', function() use($app, $db){
 	$db->close();
 });
 
+$app->post('/recuperarContrasena', function() use($app, $db){
+
+	$json = $app->request->post('json');
+	$data = json_decode($json, true);
+
+	$queryExiste = "SELECT username FROM autenticacion".
+	" where username ="."'{$data['email']}'";
+
+
+		/* comprobar la conexión */
+	if ($db->connect_errno) {
+	    printf("Falló la conexión: %s\n", $db->connect_error);
+	    exit();
+	}
+
+	$resultadoQuery = $db->query($queryExiste);
+
+	$data = array();
+
+	while($row = mysqli_fetch_assoc($resultadoQuery)){
+    	$data[] = $row; 
+    
+	}
+	
+	if (empty($data)) {
+    //usuario no existe
+		$app->response->setStatus(404);
+		$resultResponse = array(
+			'status' => 'error',
+			'code'	 => 404,
+			'message' => 'Usuario no existe'
+		);
+	}else{
+	
+		// reestablecer contraseña por defecto
+			$passDefault = passwordByDefault::singleton();
+			$pass = $passDefault->getPasswordByDefault();
+			
+		// update de password
+				$queryUpdate = "UPDATE 'autenticacion'".
+				" SET 'password' ="."'$pass'".
+				" where 'autenticacion.username' ="."'{$data[0]['username']}'";
+
+//				echo json_encode($queryUpdate);
+
+				
+
+				$resultadoQuery = $db->query($queryExiste);
+
+				$dataUpdate = array();
+
+				while($row = mysqli_fetch_assoc($resultadoQuery)){
+			    	$dataUpdate[] = $row; 
+			    
+				}
+		//enviar mail con contraseña
+			$mailSender = mailer::singleton();
+			$envio = $mailSender->sendRecoverMail($dataUpdate[0]['username'],$pass);
+		
+		$app->response->setStatus(200);
+		$resultResponse = array(
+			'status' => 'success',
+			'code'	 => 200,
+			'message' => 'contraseña reestablecida, revisa tu correo '
+			
+		);
+	}
+
+
+	$resultadoQuery->close();
+	echo json_encode($resultResponse);
+	$db->close();
+});
+
+
 
 $app->run();
