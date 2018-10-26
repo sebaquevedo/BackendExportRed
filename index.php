@@ -232,38 +232,49 @@ $app->post('/recuperarContrasena', function() use($app, $db){
 		);
 	}else{
 	
-		// reestablecer contraseña por defecto
-			$passDefault = passwordByDefault::singleton();
-			$pass = $passDefault->getPasswordByDefault();
-			
-		// update de password
-				$queryUpdate = "UPDATE 'autenticacion'".
-				" SET 'password' ="."'$pass'".
-				" where 'autenticacion.username' ="."'{$data[0]['username']}'";
-
-//				echo json_encode($queryUpdate);
-
-				
-
-				$resultadoQuery = $db->query($queryExiste);
-
-				$dataUpdate = array();
-
-				while($row = mysqli_fetch_assoc($resultadoQuery)){
-			    	$dataUpdate[] = $row; 
-			    
-				}
-		//enviar mail con contraseña
-			$mailSender = mailer::singleton();
-			$envio = $mailSender->sendRecoverMail($dataUpdate[0]['username'],$pass);
+	// reestablecer contraseña por defecto
+		$passDefault = passwordByDefault::singleton();
+		$pass = $passDefault->getPasswordByDefault();
 		
-		$app->response->setStatus(200);
-		$resultResponse = array(
-			'status' => 'success',
-			'code'	 => 200,
-			'message' => 'contraseña reestablecida, revisa tu correo '
-			
-		);
+	// update de password
+		$queryUpdate = "UPDATE autenticacion".
+		" SET autenticacion.password ="."'$pass'".
+		" where autenticacion.username ="."'{$data[0]['username']}'";
+
+ 		$resultadoQueryUpdate = $db->query($queryUpdate);
+
+ 		$dataUpdate = array();
+
+ 		if($resultadoQueryUpdate){
+			//enviar mail con contraseña
+			//echo json_encode($data[0]['username']);
+			 $mailSender = mailer::singleton();
+			 $envio = $mailSender->sendRecoverMail($data[0]['username'],$pass);
+
+			$app->response->setStatus(200);
+			$resultResponse = array(
+				'status' => 'success',
+				'code'	 => 200,
+				'message' => 'contraseña reestablecida, revisa tu correo '
+				
+			);
+
+ 		}else{
+ 			$app->response->setStatus(404);
+			$resultResponse = array(
+				'status' => 'error',
+				'code'	 => 404,
+				'message' => 'hubo un problema al actualizar registro de usuario'
+				
+			);
+
+ 		}
+
+ 		// while($row = mysqli_fetch_assoc($resultadoQueryUpdate)){
+ 	 //    	$dataUpdate[] = $row; 
+	    
+ 		// }	
+		
 	}
 
 

@@ -97,7 +97,7 @@
 
 			    //Content
 			    $mail->isHTML(true);                                  // Set email format to HTML
-			    $mail->Subject = 'Recuperacion de contraseña en EntelExportRed';
+			    $mail->Subject = 'Recuperacion de password en EntelExportRed';
 			    $mail->Body    = '<h1> Su contraseña ha sido reestablecida</h1><p>Su contraseña ha sido reestablecida, por favor ingrese nuevamente con el usuario/correo que uso para registrarse. </p><p>Ingrese con la siguiente password : '. $pass .'</p> <b>negrita!</b> <br> <p>Para acceder haz click </p><a href="http://localhost:4200/login">aqui</a> ';
 			    $mail->AltBody = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa provident error iusto, voluptate delectus odit modi quibusdam ipsum eos, laborum dignissimos cum doloribus ullam nisi aperiam expedita! Ea, blanditiis, nisi.';
 
